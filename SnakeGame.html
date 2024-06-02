@@ -7,6 +7,7 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -18,21 +19,32 @@
             background-color: #fff;
         }
         #score {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+            margin: 10px;
             font-size: 20px;
             font-family: Arial, sans-serif;
         }
-        #game-over {
+        #game-over, #restart-button {
             display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             font-size: 40px;
             font-family: Arial, sans-serif;
             color: red;
+            margin-top: 20px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            margin-top: 10px;
+        }
+        .controls div {
+            display: flex;
+            justify-content: center;
+        }
+        .control-button, #restart-button {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            font-size: 20px;
+            font-family: Arial, sans-serif;
         }
     </style>
 </head>
@@ -40,11 +52,23 @@
     <canvas id="gameCanvas" width="400" height="400"></canvas>
     <div id="score">Счет: 0</div>
     <div id="game-over">Вы проиграли!</div>
+    <button id="restart-button" onclick="restartGame()">Перезапуск</button>
+    <div class="controls">
+        <div>
+            <button class="control-button" onclick="setDirection('UP')">↑</button>
+        </div>
+        <div>
+            <button class="control-button" onclick="setDirection('LEFT')">←</button>
+            <button class="control-button" onclick="setDirection('DOWN')">↓</button>
+            <button class="control-button" onclick="setDirection('RIGHT')">→</button>
+        </div>
+    </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
         const gameOverDisplay = document.getElementById('game-over');
+        const restartButton = document.getElementById('restart-button');
 
         const snakeHeadImg = new Image();
         const snakeBodyImg = new Image();
@@ -55,24 +79,36 @@
         snakeHeadImg.src = 'snake_head.png';
         snakeBodyImg.src = 'snake_body.png';
         fruitImg.src = 'fruit.png';
-        treeImg.src = 'tree.png'; // Добавляем изображение дерева
+        treeImg.src = 'tree.png';
         explosionImgs[0].src = 'explosion1.png';
         explosionImgs[1].src = 'explosion2.png';
         explosionImgs[2].src = 'explosion3.png';
 
         const box = 20;
-        let snake = [];
-        snake[0] = { x: 9 * box, y: 10 * box };
-        let fruit = {
-            x: Math.floor(Math.random() * 19 + 1) * box,
-            y: Math.floor(Math.random() * 19 + 1) * box
-        };
+        let snake, fruit, tree, d, score, speed, gameInterval, treeTimer;
 
-        let tree = null;
-        let treeTimer;
-        let d;
-        let score = 0;
-        let gameInterval;
+        function initializeGame() {
+            snake = [{ x: 9 * box, y: 10 * box }];
+            fruit = {
+                x: Math.floor(Math.random() * 19 + 1) * box,
+                y: Math.floor(Math.random() * 19 + 1) * box
+            };
+            tree = null;
+            d = null;
+            score = 0;
+            speed = 200;
+            scoreDisplay.innerText = "Счет: " + score;
+            gameOverDisplay.style.display = "none";
+            restartButton.style.display = "none";
+            gameInterval = setInterval(draw, speed);
+            setTimeout(() => {
+                placeTree();
+                treeTimer = setInterval(() => {
+                    placeTree();
+                }, 10000);
+            }, 10000);
+        }
+
         document.addEventListener("keydown", direction);
 
         function direction(event) {
@@ -83,6 +119,18 @@
             } else if (event.keyCode == 39 && d != "LEFT") {
                 d = "RIGHT";
             } else if (event.keyCode == 40 && d != "UP") {
+                d = "DOWN";
+            }
+        }
+
+        function setDirection(newDirection) {
+            if (newDirection == "LEFT" && d != "RIGHT") {
+                d = "LEFT";
+            } else if (newDirection == "UP" && d != "DOWN") {
+                d = "UP";
+            } else if (newDirection == "RIGHT" && d != "LEFT") {
+                d = "RIGHT";
+            } else if (newDirection == "DOWN" && d != "UP") {
                 d = "DOWN";
             }
         }
@@ -134,7 +182,7 @@
             ctx.drawImage(fruitImg, fruit.x, fruit.y, box, box);
 
             if (tree) {
-                ctx.drawImage(treeImg, tree.x, tree.y, box * 4, box * 4); // Дерево занимает 4 клетки
+                ctx.drawImage(treeImg, tree.x, tree.y, box * 2, box * 2);
             }
 
             let snakeX = snake[0].x;
@@ -152,6 +200,9 @@
                 };
                 score++;
                 scoreDisplay.innerText = "Счет: " + score;
+                clearInterval(gameInterval);
+                speed -= 10;
+                gameInterval = setInterval(draw, speed);
                 placeTree();
             } else {
                 snake.pop();
@@ -164,6 +215,7 @@
                 clearInterval(treeTimer);
                 triggerExplosion(snake);
                 gameOverDisplay.style.display = "block";
+                restartButton.style.display = "block";
                 return;
             }
 
@@ -193,16 +245,11 @@
             let explosionInterval = setInterval(animateExplosion, 100);
         }
 
-        gameInterval = setInterval(draw, 100);
+        function restartGame() {
+            initializeGame();
+        }
 
-        // Запускаем таймер для первого появления дерева через 10 секунд
-        setTimeout(() => {
-            placeTree();
-            treeTimer = setInterval(() => {
-                placeTree();
-            }, 10000); // Перемещение дерева каждые 10 секунд
-        }, 10000);
-
+        initializeGame();
     </script>
 </body>
 </html>
