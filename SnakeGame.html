@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+            font-family: Arial, sans-serif;
+        }
+        #game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            font-family: Arial, sans-serif;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="score">Счет: 0</div>
+    <div id="game-over">Вы проиграли!</div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverDisplay = document.getElementById('game-over');
+
+        const snakeHeadImg = new Image();
+        const snakeBodyImg = new Image();
+        const fruitImg = new Image();
+        const treeImg = new Image();
+        const explosionImgs = [new Image(), new Image(), new Image()];
+
+        snakeHeadImg.src = 'snake_head.png';
+        snakeBodyImg.src = 'snake_body.png';
+        fruitImg.src = 'fruit.png';
+        treeImg.src = 'tree.png'; // Добавляем изображение дерева
+        explosionImgs[0].src = 'explosion1.png';
+        explosionImgs[1].src = 'explosion2.png';
+        explosionImgs[2].src = 'explosion3.png';
+
+        const box = 20;
+        let snake = [];
+        snake[0] = { x: 9 * box, y: 10 * box };
+        let fruit = {
+            x: Math.floor(Math.random() * 19 + 1) * box,
+            y: Math.floor(Math.random() * 19 + 1) * box
+        };
+
+        let tree = null;
+        let treeTimer;
+        let d;
+        let score = 0;
+        let gameInterval;
+        document.addEventListener("keydown", direction);
+
+        function direction(event) {
+            if (event.keyCode == 37 && d != "RIGHT") {
+                d = "LEFT";
+            } else if (event.keyCode == 38 && d != "DOWN") {
+                d = "UP";
+            } else if (event.keyCode == 39 && d != "LEFT") {
+                d = "RIGHT";
+            } else if (event.keyCode == 40 && d != "UP") {
+                d = "DOWN";
+            }
+        }
+
+        function collision(head, array) {
+            for (let i = 0; i < array.length; i++) {
+                if (head.x == array[i].x && head.y == array[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function placeTree() {
+            let validPosition = false;
+            while (!validPosition) {
+                let treeX = Math.floor(Math.random() * 17 + 1) * box;
+                let treeY = Math.floor(Math.random() * 17 + 1) * box;
+                validPosition = true;
+
+                if (Math.abs(treeX - fruit.x) < 3 * box && Math.abs(treeY - fruit.y) < 3 * box) {
+                    validPosition = false;
+                }
+
+                for (let i = 0; i < snake.length; i++) {
+                    if (Math.abs(treeX - snake[i].x) < 3 * box && Math.abs(treeY - snake[i].y) < 3 * box) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+
+                if (validPosition) {
+                    tree = { x: treeX, y: treeY };
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < snake.length; i++) {
+                if (i == 0) {
+                    ctx.drawImage(snakeHeadImg, snake[i].x, snake[i].y, box, box);
+                } else {
+                    ctx.drawImage(snakeBodyImg, snake[i].x, snake[i].y, box, box);
+                }
+            }
+
+            ctx.drawImage(fruitImg, fruit.x, fruit.y, box, box);
+
+            if (tree) {
+                ctx.drawImage(treeImg, tree.x, tree.y, box * 4, box * 4); // Дерево занимает 4 клетки
+            }
+
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            if (d == "LEFT") snakeX -= box;
+            if (d == "UP") snakeY -= box;
+            if (d == "RIGHT") snakeX += box;
+            if (d == "DOWN") snakeY += box;
+
+            if (snakeX == fruit.x && snakeY == fruit.y) {
+                fruit = {
+                    x: Math.floor(Math.random() * 19 + 1) * box,
+                    y: Math.floor(Math.random() * 19 + 1) * box
+                };
+                score++;
+                scoreDisplay.innerText = "Счет: " + score;
+                placeTree();
+            } else {
+                snake.pop();
+            }
+
+            let newHead = { x: snakeX, y: snakeY };
+
+            if (snakeX < 0 || snakeX >= 20 * box || snakeY < 0 || snakeY >= 20 * box || collision(newHead, snake) || (tree && snakeX >= tree.x && snakeX < tree.x + 2 * box && snakeY >= tree.y && snakeY < tree.y + 2 * box)) {
+                clearInterval(gameInterval);
+                clearInterval(treeTimer);
+                triggerExplosion(snake);
+                gameOverDisplay.style.display = "block";
+                return;
+            }
+
+            snake.unshift(newHead);
+        }
+
+        function triggerExplosion(snake) {
+            let index = 0;
+            let segmentIndex = 0;
+
+            function animateExplosion() {
+                if (segmentIndex >= snake.length) {
+                    clearInterval(explosionInterval);
+                    return;
+                }
+
+                ctx.clearRect(snake[segmentIndex].x, snake[segmentIndex].y, box, box);
+                ctx.drawImage(explosionImgs[index], snake[segmentIndex].x, snake[segmentIndex].y, box, box);
+                index++;
+
+                if (index >= explosionImgs.length) {
+                    index = 0;
+                    segmentIndex++;
+                }
+            }
+
+            let explosionInterval = setInterval(animateExplosion, 100);
+        }
+
+        gameInterval = setInterval(draw, 100);
+
+        // Запускаем таймер для первого появления дерева через 10 секунд
+        setTimeout(() => {
+            placeTree();
+            treeTimer = setInterval(() => {
+                placeTree();
+            }, 10000); // Перемещение дерева каждые 10 секунд
+        }, 10000);
+
+    </script>
+</body>
+</html>
