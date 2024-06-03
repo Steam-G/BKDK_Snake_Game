@@ -49,7 +49,7 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <canvas id="gameCanvas" width="380" height="380"></canvas>
     <div id="score">Счет: 0</div>
     <div id="game-over">Вы проиграли!</div>
     <button id="restart-button" onclick="restartGame()">Перезапуск</button>
@@ -91,8 +91,8 @@
             snake = [{ x: 9 * box, y: 10 * box }];
             oldSnake = [];
             fruit = {
-                x: Math.floor(Math.random() * 19 + 1) * box,
-                y: Math.floor(Math.random() * 19 + 1) * box
+                x: Math.floor(Math.random() * 18 + 1) * box,
+                y: Math.floor(Math.random() * 18 + 1) * box
             };
             tree = null;
             d = null;
@@ -150,8 +150,8 @@
         function placeTree() {
             let validPosition = false;
             while (!validPosition) {
-                let treeX = Math.floor(Math.random() * 17 + 1) * box;
-                let treeY = Math.floor(Math.random() * 17 + 1) * box;
+                let treeX = Math.floor(Math.random() * 15 + 1) * box;
+                let treeY = Math.floor(Math.random() * 14 + 1) * box;
                 validPosition = true;
 
                 if (Math.abs(treeX - fruit.x) < 3 * box && Math.abs(treeY - fruit.y) < 3 * box) {
@@ -185,7 +185,7 @@
             ctx.drawImage(fruitImg, fruit.x, fruit.y, box, box);
 
             if (tree) {
-                ctx.drawImage(treeImg, tree.x, tree.y, box * 2, box * 2);
+                ctx.drawImage(treeImg, tree.x, tree.y, box * 4, box * 5);
             }
 
             let snakeX = snake[0].x;
@@ -198,13 +198,13 @@
 
             if (snakeX == fruit.x && snakeY == fruit.y) {
                 fruit = {
-                    x: Math.floor(Math.random() * 19 + 1) * box,
-                    y: Math.floor(Math.random() * 19 + 1) * box
+                    x: Math.floor(Math.random() * 18 + 1) * box,
+                    y: Math.floor(Math.random() * 18 + 1) * box
                 };
                 score++;
                 scoreDisplay.innerText = "Счет: " + score;
                 clearInterval(gameInterval);
-                speed -= 10;
+                speed -= 3;
                 gameInterval = setInterval(draw, speed);
                 placeTree();
             } else {
@@ -214,7 +214,7 @@
 
             let newHead = { x: snakeX, y: snakeY };
 
-            if (snakeX < 0 || snakeX >= 20 * box || snakeY < 0 || snakeY >= 20 * box || collision(newHead, snake) || (tree && snakeX >= tree.x && snakeX < tree.x + 2 * box && snakeY >= tree.y && snakeY < tree.y + 2 * box)) {
+            if (snakeX < 0 || snakeX >= 20 * box || snakeY < 0 || snakeY >= 20 * box || collision(newHead, snake) || (tree && snakeX >= tree.x && snakeX < tree.x + 4 * box && snakeY >= tree.y && snakeY < tree.y + 6 * box)) {
                 clearInterval(gameInterval);
                 clearInterval(treeTimer);
                 triggerExplosion([...oldSnake]); // Используем oldSnake для анимации взрывов
