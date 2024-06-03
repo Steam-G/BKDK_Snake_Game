@@ -85,10 +85,11 @@
         explosionImgs[2].src = 'explosion3.png';
 
         const box = 20;
-        let snake, fruit, tree, d, score, speed, gameInterval, treeTimer;
+        let snake, oldSnake, fruit, tree, d, score, speed, gameInterval, treeTimer;
 
         function initializeGame() {
             snake = [{ x: 9 * box, y: 10 * box }];
+            oldSnake = [];
             fruit = {
                 x: Math.floor(Math.random() * 19 + 1) * box,
                 y: Math.floor(Math.random() * 19 + 1) * box
@@ -100,6 +101,8 @@
             scoreDisplay.innerText = "Счет: " + score;
             gameOverDisplay.style.display = "none";
             restartButton.style.display = "none";
+            clearInterval(gameInterval);
+            clearTimeout(treeTimer);
             gameInterval = setInterval(draw, speed);
             setTimeout(() => {
                 placeTree();
@@ -205,6 +208,7 @@
                 gameInterval = setInterval(draw, speed);
                 placeTree();
             } else {
+                oldSnake = [...snake]; // Сохраняем предыдущее состояние змейки
                 snake.pop();
             }
 
@@ -213,7 +217,7 @@
             if (snakeX < 0 || snakeX >= 20 * box || snakeY < 0 || snakeY >= 20 * box || collision(newHead, snake) || (tree && snakeX >= tree.x && snakeX < tree.x + 2 * box && snakeY >= tree.y && snakeY < tree.y + 2 * box)) {
                 clearInterval(gameInterval);
                 clearInterval(treeTimer);
-                triggerExplosion(snake);
+                triggerExplosion([...oldSnake]); // Используем oldSnake для анимации взрывов
                 gameOverDisplay.style.display = "block";
                 restartButton.style.display = "block";
                 return;
@@ -223,26 +227,27 @@
         }
 
         function triggerExplosion(snake) {
-            let index = 0;
             let segmentIndex = 0;
 
             function animateExplosion() {
                 if (segmentIndex >= snake.length) {
-                    clearInterval(explosionInterval);
                     return;
                 }
 
-                ctx.clearRect(snake[segmentIndex].x, snake[segmentIndex].y, box, box);
-                ctx.drawImage(explosionImgs[index], snake[segmentIndex].x, snake[segmentIndex].y, box, box);
-                index++;
+                for (let i = 0; i < explosionImgs.length; i++) {
+                    setTimeout(() => {
+                        ctx.clearRect(snake[segmentIndex].x, snake[segmentIndex].y, box, box);
+                        ctx.drawImage(explosionImgs[i], snake[segmentIndex].x, snake[segmentIndex].y, box, box);
+                    }, i * 100);
+                }
 
-                if (index >= explosionImgs.length) {
-                    index = 0;
-                    segmentIndex++;
+                segmentIndex++;
+                if (segmentIndex < snake.length) {
+                    setTimeout(animateExplosion, explosionImgs.length * 100);
                 }
             }
 
-            let explosionInterval = setInterval(animateExplosion, 100);
+            animateExplosion();
         }
 
         function restartGame() {
