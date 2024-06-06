@@ -1,0 +1,48 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+canvas {
+    border: 15px solid #6abd7b;
+    background-color: #97cca5;
+    background-image: url(images/field_box_transp.png);
+}
+
+#score {
+    margin: 10px;
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+}
+
+#game-over, #restart-button {
+    display: none;
+    font-size: 40px;
+    font-family: Arial, sans-serif;
+    color: red;
+    margin-top: 20px;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.controls div {
+    display: flex;
+    justify-content: center;
+}
+
+.control-button, #restart-button {
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+}
