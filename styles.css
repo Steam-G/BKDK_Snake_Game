@@ -46,3 +46,13 @@ canvas {
     font-size: 20px;
     font-family: Arial, sans-serif;
 }
+
+.sound-controls {
+    margin-top: 20px;
+}
+
+.sound-controls button {
+    margin: 5px;
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+}
