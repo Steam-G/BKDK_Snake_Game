@@ -19,8 +19,9 @@ explosionImgs[1].src = 'images/explosion2.png';
 explosionImgs[2].src = 'images/explosion3.png';
 
 const backgroundMusic = document.getElementById('background-music');
-backgroundMusic.volume = 0.3;  // Уменьшение громкости фоновой музыки до 30%
+backgroundMusic.volume = 0.1;  // Уменьшение громкости фоновой музыки до 10%
 const moveSounds = Array.from(document.getElementsByClassName('move-sound'));
+moveSounds.volume = 0.1; // Уменьшение громкости звука движения до 10%
 const fruitSound = document.getElementById('fruit-sound');
 const collisionSound = document.getElementById('collision-sound');
 const treeCollisionSound = document.getElementById('tree-collision-sound');
