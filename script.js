@@ -3,6 +3,8 @@ const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const gameOverDisplay = document.getElementById('game-over');
 const restartButton = document.getElementById('restart-button');
+const joystickArea = document.getElementById('joystick-area');
+const stick = document.getElementById('stick');
 
 const snakeHeadImg = new Image();
 const snakeBodyImg = new Image();
@@ -19,35 +21,34 @@ explosionImgs[1].src = 'images/explosion2.png';
 explosionImgs[2].src = 'images/explosion3.png';
 
 const backgroundMusic = document.getElementById('background-music');
-backgroundMusic.volume = 0.1;  // Уменьшение громкости фоновой музыки до 10%
+backgroundMusic.volume = 0.1;
 const moveSounds = Array.from(document.getElementsByClassName('move-sound'));
-moveSounds.volume = 0.1; // Уменьшение громкости звука движения до 10%
+moveSounds.forEach(sound => sound.volume = 0.1);
 const fruitSound = document.getElementById('fruit-sound');
 const collisionSound = document.getElementById('collision-sound');
 const treeCollisionSound = document.getElementById('tree-collision-sound');
 const restartSound = document.getElementById('restart-sound');
 const explosionSound = document.getElementById('explosion-sound');
 
-const box = 30;
-let snake, oldSnake, fruit, tree, d, score, speed, gameInterval, treeTimer;
+let box, snake, oldSnake, fruit, tree, d, score, speed, gameInterval, treeTimer;
 let musicOn = true;
 let soundsOn = true;
 let moveSoundIndex = 0;
+let isDragging = false;
+let centerX, centerY;
 
 function initializeGame() {
-    snake = [{ x: 9 * box, y: 10 * box }];
+    resizeCanvas();
+    updateBackgroundSize();
+    snake = [{ x: 9, y: 10 }];
     oldSnake = [];
-    fruit = {
-                x: Math.floor(Math.random() * 18 + 1) * box,
-                y: Math.floor(Math.random() * 18 + 1) * box
-    };
+    placeFruit();
     tree = null;
     d = null;
     score = 0;
     speed = 200;
-    scoreDisplay.innerText = "Счет: " + score;
-    gameOverDisplay.style.display = "none";
-    restartButton.style.display = "none";
+    scoreDisplay.innerText = "Score: " + score;
+    hideGameOver();
     clearInterval(gameInterval);
     clearTimeout(treeTimer);
     gameInterval = setInterval(draw, speed);
@@ -62,17 +63,44 @@ function initializeGame() {
     }
 }
 
+function updateBackgroundSize() {
+    const boxSizePx = box + 'px';
+    canvas.style.backgroundSize = boxSizePx + ' ' + boxSizePx;
+}
+
+function resizeCanvas() {
+    const container = document.getElementById('game-container');
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    const canvasSize = Math.min(containerWidth * 0.9, containerHeight * 0.6);
+    
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+    
+    box = canvasSize / 20;
+    
+    updateBackgroundSize(); // Добавьте эту строку
+}
+
+function placeFruit() {
+    fruit = {
+        x: Math.floor(Math.random() * 18 + 1),
+        y: Math.floor(Math.random() * 18 + 1)
+    };
+}
+
 document.addEventListener("keydown", direction);
 
 function direction(event) {
-    if (event.keyCode == 37 && d != "RIGHT") {
-        d = "LEFT";
-    } else if (event.keyCode == 38 && d != "DOWN") {
-        d = "UP";
-    } else if (event.keyCode == 39 && d != "LEFT") {
-        d = "RIGHT";
-    } else if (event.keyCode == 40 && d != "UP") {
-        d = "DOWN";
+    if (event.keyCode == 37) {
+        setDirection("LEFT");
+    } else if (event.keyCode == 38) {
+        setDirection("UP");
+    } else if (event.keyCode == 39) {
+        setDirection("RIGHT");
+    } else if (event.keyCode == 40) {
+        setDirection("DOWN");
     }
 }
 
@@ -100,16 +128,16 @@ function collision(head, array) {
 function placeTree() {
     let validPosition = false;
     while (!validPosition) {
-                let treeX = Math.floor(Math.random() * 15 + 1) * box;
-                let treeY = Math.floor(Math.random() * 14 + 1) * box;
+        let treeX = Math.floor(Math.random() * 15 + 1);
+        let treeY = Math.floor(Math.random() * 14 + 1);
         validPosition = true;
 
-        if (Math.abs(treeX - fruit.x) < 3 * box && Math.abs(treeY - fruit.y) < 3 * box) {
+        if (Math.abs(treeX - fruit.x) < 3 && Math.abs(treeY - fruit.y) < 3) {
             validPosition = false;
         }
 
         for (let i = 0; i < snake.length; i++) {
-            if (Math.abs(treeX - snake[i].x) < 3 * box && Math.abs(treeY - snake[i].y) < 3 * box) {
+            if (Math.abs(treeX - snake[i].x) < 3 && Math.abs(treeY - snake[i].y) < 3) {
                 validPosition = false;
                 break;
             }
@@ -121,69 +149,72 @@ function placeTree() {
     }
 }
 
+function showGameOver() {
+    document.getElementById('game-over-container').style.display = 'flex';
+}
+
+function hideGameOver() {
+    document.getElementById('game-over-container').style.display = 'none';
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let i = 0; i < snake.length; i++) {
         if (i == 0) {
-            ctx.drawImage(snakeHeadImg, snake[i].x, snake[i].y, box, box);
+            ctx.drawImage(snakeHeadImg, snake[i].x * box, snake[i].y * box, box, box);
         } else {
-            ctx.drawImage(snakeBodyImg, snake[i].x, snake[i].y, box, box);
+            ctx.drawImage(snakeBodyImg, snake[i].x * box, snake[i].y * box, box, box);
         }
     }
 
-    ctx.drawImage(fruitImg, fruit.x, fruit.y, box, box);
+    ctx.drawImage(fruitImg, fruit.x * box, fruit.y * box, box, box);
 
     if (tree) {
-                ctx.drawImage(treeImg, tree.x, tree.y, box * 3, box * 4);
+        ctx.drawImage(treeImg, tree.x * box, tree.y * box, box * 3, box * 4);
     }
 
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
 
-    if (d == "LEFT") snakeX -= box;
-    if (d == "UP") snakeY -= box;
-    if (d == "RIGHT") snakeX += box;
-    if (d == "DOWN") snakeY += box;
+    if (d == "LEFT") snakeX--;
+    if (d == "UP") snakeY--;
+    if (d == "RIGHT") snakeX++;
+    if (d == "DOWN") snakeY++;
 
     if (snakeX == fruit.x && snakeY == fruit.y) {
         score++;
-        scoreDisplay.innerText = "Счет: " + score;
+        scoreDisplay.innerText = "Score: " + score;
         fruitSound.play();
-        fruit = {
-            x: Math.floor(Math.random() * 18 + 1) * box,
-            y: Math.floor(Math.random() * 18 + 1) * box
-        };
+        placeFruit();
         clearInterval(gameInterval);
         speed -= 3;
         gameInterval = setInterval(draw, speed);
     } else {
-                oldSnake = [...snake]; // Сохраняем предыдущее состояние змейки
+        oldSnake = [...snake];
         snake.pop();
     }
-
-    //oldSnake = JSON.parse(JSON.stringify(snake));
 
     let newHead = {
         x: snakeX,
         y: snakeY
     };
 
-    if (collision(newHead, snake) || snakeX < 0 || snakeY < 0 || snakeX >= canvas.width || snakeY >= canvas.height || (tree && snakeX >= tree.x && snakeX < tree.x + 3 * box && snakeY >= tree.y && snakeY < tree.y + 4 * box)) {
-        if (tree && snakeX >= tree.x && snakeX < tree.x + 2 * box && snakeY >= tree.y && snakeY < tree.y + 2 * box) {
+    if (collision(newHead, snake) || snakeX < 0 || snakeY < 0 || snakeX >= 20 || snakeY >= 20 || 
+        (tree && snakeX >= tree.x && snakeX < tree.x + 3 && snakeY >= tree.y && snakeY < tree.y + 4)) {
+        if (tree && snakeX >= tree.x && snakeX < tree.x + 2 && snakeY >= tree.y && snakeY < tree.y + 2) {
             treeCollisionSound.play();
         } else {
             collisionSound.play();
         }
-        gameOverDisplay.style.display = "block";
-        restartButton.style.display = "block";
+        showGameOver();
         clearInterval(gameInterval);
         clearTimeout(treeTimer);
         if (musicOn) {
             backgroundMusic.pause();
             backgroundMusic.currentTime = 0;
         }
-        triggerExplosion([...oldSnake]); // Используем oldSnake для анимации взрывов
+        triggerExplosion([...oldSnake]);
         return;
     }
 
@@ -212,8 +243,8 @@ function triggerExplosion(snake) {
                 explosionSound.play();
             }
             setTimeout(() => {
-                ctx.clearRect(snake[segmentIndex].x, snake[segmentIndex].y, box, box);
-                ctx.drawImage(explosionImgs[i], snake[segmentIndex].x, snake[segmentIndex].y, box, box);
+                ctx.clearRect(snake[segmentIndex].x * box, snake[segmentIndex].y * box, box, box);
+                ctx.drawImage(explosionImgs[i], snake[segmentIndex].x * box, snake[segmentIndex].y * box, box, box);
             }, i * 100);
         }
 
@@ -229,18 +260,18 @@ function triggerExplosion(snake) {
 function toggleMusic() {
     if (musicOn) {
         backgroundMusic.pause();
-        document.getElementById('toggle-music').innerText = "Музыка: Выкл";
+        document.getElementById('toggle-music').innerText = "Music: OFF";
     } else {
         backgroundMusic.play();
-        document.getElementById('toggle-music').innerText = "Музыка: Вкл";
+        document.getElementById('toggle-music').innerText = "Music: ON";
     }
     musicOn = !musicOn;
 }
 
 function toggleSounds() {
     soundsOn = !soundsOn;
-    document.getElementById('toggle-sounds').innerText = soundsOn ? "Звуки: Вкл" : "Звуки: Выкл";
-    moveSound.muted = !soundsOn;
+    document.getElementById('toggle-sounds').innerText = soundsOn ? "Sound: ON" : "Sound: OFF";
+    moveSounds.forEach(sound => sound.muted = !soundsOn);
     fruitSound.muted = !soundsOn;
     collisionSound.muted = !soundsOn;
     treeCollisionSound.muted = !soundsOn;
@@ -251,5 +282,51 @@ function restartGame() {
     restartSound.play();
     initializeGame();
 }
+
+function updateStickPosition(clientX, clientY) {
+    const rect = joystickArea.getBoundingClientRect();
+    const x = clientX - rect.left - rect.width / 2;
+    const y = clientY - rect.top - rect.height / 2;
+
+    const angle = Math.atan2(y, x);
+    const maxDistance = rect.width / 2 - stick.offsetWidth / 2 - 5;
+    const distance = Math.min(Math.hypot(x, y), maxDistance);
+
+    centerX = distance * Math.cos(angle);
+    centerY = distance * Math.sin(angle);
+
+    stick.style.transform = `translate(calc(-50% + ${centerX}px), calc(-50% + ${centerY}px))`;
+
+    updateSnakeDirection(centerX, centerY);
+}
+
+function updateSnakeDirection(x, y) {
+    if (Math.abs(x) > Math.abs(y)) {
+        setDirection(x > 0 ? "RIGHT" : "LEFT");
+    } else {
+        setDirection(y > 0 ? "DOWN" : "UP");
+    }
+}
+
+joystickArea.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    updateStickPosition(e.clientX, e.clientY);
+});
+
+document.addEventListener('pointermove', (e) => {
+    if (isDragging) {
+        updateStickPosition(e.clientX, e.clientY);
+    }
+});
+
+document.addEventListener('pointerup', () => {
+    isDragging = false;
+    stick.style.transform = 'translate(-50%, -50%)';
+});
+
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    initializeGame();
+});
 
 initializeGame();

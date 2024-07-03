@@ -6,53 +6,181 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #ffdea7;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100vw;
+    max-height: 150vh;
+    background-image: url('images/gamepad.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 15px; /* Добавьте отступы по необходимости */
 }
 
 canvas {
-    border: 15px solid #6abd7b;
+    border: 5px solid #4a4641;
     background-color: #97cca5;
     background-image: url(images/field_box_transp.png);
+    background-repeat: repeat;
+    /*max-width: 90vw;*/
+    /*max-height: 60vh;*/
+    max-width: 100%; /* Настройте под размер "экрана" на изображении */
+    max-height: 100%;
+    /*margin-left: 10%;*/
+    margin: 5%; /* Подвиньте канвас, чтобы он попал на "экран" */
+    border-radius: 15px; /* Добавьте это свойство */
+    
+    overflow: hidden;
 }
 
 #score {
-    margin: 10px;
+    position: absolute;
+    top: 5%;
+    left: 15%;
+    transform: translateX(-50%);
+    color: #333; /* Выберите цвет, подходящий к дизайну */
     font-size: 20px;
     font-family: Arial, sans-serif;
 }
 
-#game-over, #restart-button {
+#game-over-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 10;
     display: none;
+}
+
+#game-over {
     font-size: 40px;
     font-family: Arial, sans-serif;
     color: red;
-    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.controls {
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
+#restart-button {
+    font-size: 24px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.controls div {
-    display: flex;
-    justify-content: center;
-}
-
-.control-button, #restart-button {
-    width: 50px;
-    height: 50px;
-    margin: 5px;
-    font-size: 20px;
-    font-family: Arial, sans-serif;
+#restart-button:hover {
+    background-color: #45a049;
 }
 
 .sound-controls {
-    margin-top: 20px;
+    position: absolute;
+    top: 5%;
+    right: 15%;
 }
 
 .sound-controls button {
     margin: 5px;
-    font-size: 20px;
+    font-size: 16px;
     font-family: Arial, sans-serif;
+}
+
+#joystick-container {
+    
+    margin-top: 60px;
+    touch-action: none;
+    margin-bottom: 40px;
+}
+
+#joystick-area {
+    width: 200px;
+    height: 200px;
+    background-image: url('images/stick.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /*background: radial-gradient(circle, #e0e0e0, #b0b0b0);*/
+    border-radius: 50%;
+    position: relative;
+    border: 2px solid #cacebc;
+}
+
+#stick-base {
+    width: 60px;
+    height: 60px;
+    background: #302c26;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+#stick {
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle, #98cba3, #002d05);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+#stick::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #333;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width: 768px) {
+    canvas {
+        max-width: 95vw;
+        max-height: 50vh;
+    }
+
+    #joystick-area {
+        width: 120px;
+        height: 120px;
+    }
+
+    #stick-base {
+        width: 60px;
+        height: 60px;
+    }
+
+    #stick {
+        width: 40px;
+        height: 40px;
+    }
+
+    #stick::after {
+        width: 15px;
+        height: 15px;
+    }
+
+    .sound-controls button {
+        font-size: 14px;
+    }
 }
