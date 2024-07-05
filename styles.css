@@ -88,19 +88,47 @@ canvas {
 
 .sound-controls {
     position: absolute;
-    top: 5%;
-    right: 15%;
+    bottom: 5%;
+    right: 5%;
+    display: flex;
+    gap: 10px;
 }
 
 .sound-controls button {
-    margin: 5px;
-    font-size: 16px;
-    font-family: Arial, sans-serif;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+    padding: 0;
+}
+
+.sound-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.sound-controls button svg {
+    width: 24px;
+    height: 24px;
+    fill: #333;
+}
+
+.sound-controls button.active {
+    background-color: #4CAF50;
+}
+
+.sound-controls button.active svg {
+    fill: white;
 }
 
 #joystick-container {
     
-    margin-top: 60px;
+    /*margin-top: 40px;*/
     touch-action: none;
     margin-bottom: 40px;
 }

@@ -5,6 +5,8 @@ const gameOverDisplay = document.getElementById('game-over');
 const restartButton = document.getElementById('restart-button');
 const joystickArea = document.getElementById('joystick-area');
 const stick = document.getElementById('stick');
+const musicButton = document.getElementById('toggle-music');
+const soundButton = document.getElementById('toggle-sounds');
 
 const snakeHeadImg = new Image();
 const snakeBodyImg = new Image();
@@ -78,15 +80,15 @@ function resizeCanvas() {
     canvas.width = canvasSize;
     canvas.height = canvasSize;
     
-    box = canvasSize / 20;
+    box = canvasSize / 15;
     
     updateBackgroundSize(); // Добавьте эту строку
 }
 
 function placeFruit() {
     fruit = {
-        x: Math.floor(Math.random() * 18 + 1),
-        y: Math.floor(Math.random() * 18 + 1)
+        x: Math.floor(Math.random() * 13 + 1),
+        y: Math.floor(Math.random() * 13 + 1)
     };
 }
 
@@ -128,8 +130,8 @@ function collision(head, array) {
 function placeTree() {
     let validPosition = false;
     while (!validPosition) {
-        let treeX = Math.floor(Math.random() * 15 + 1);
-        let treeY = Math.floor(Math.random() * 14 + 1);
+        let treeX = Math.floor(Math.random() * 12 + 1);
+        let treeY = Math.floor(Math.random() * 9 + 1);
         validPosition = true;
 
         if (Math.abs(treeX - fruit.x) < 3 && Math.abs(treeY - fruit.y) < 3) {
@@ -200,7 +202,7 @@ function draw() {
         y: snakeY
     };
 
-    if (collision(newHead, snake) || snakeX < 0 || snakeY < 0 || snakeX >= 20 || snakeY >= 20 || 
+    if (collision(newHead, snake) || snakeX < 0 || snakeY < 0 || snakeX >= 15 || snakeY >= 15 || 
         (tree && snakeX >= tree.x && snakeX < tree.x + 3 && snakeY >= tree.y && snakeY < tree.y + 4)) {
         if (tree && snakeX >= tree.x && snakeX < tree.x + 2 && snakeY >= tree.y && snakeY < tree.y + 2) {
             treeCollisionSound.play();
@@ -268,19 +270,24 @@ function toggleMusic() {
     musicOn = !musicOn;
 }
 
+function toggleMusic() {
+    musicOn = !musicOn;
+    musicButton.classList.toggle('active', musicOn);
+    if (musicOn) {
+        backgroundMusic.play();
+    } else {
+        backgroundMusic.pause();
+    }
+}
+
 function toggleSounds() {
     soundsOn = !soundsOn;
-    document.getElementById('toggle-sounds').innerText = soundsOn ? "Sound: ON" : "Sound: OFF";
+    soundButton.classList.toggle('active', soundsOn);
     moveSounds.forEach(sound => sound.muted = !soundsOn);
     fruitSound.muted = !soundsOn;
     collisionSound.muted = !soundsOn;
     treeCollisionSound.muted = !soundsOn;
     restartSound.muted = !soundsOn;
-}
-
-function restartGame() {
-    restartSound.play();
-    initializeGame();
 }
 
 function updateStickPosition(clientX, clientY) {
@@ -308,6 +315,11 @@ function updateSnakeDirection(x, y) {
     }
 }
 
+function restartGame() {
+    restartSound.play();
+    initializeGame();
+}
+
 joystickArea.addEventListener('pointerdown', (e) => {
     isDragging = true;
     updateStickPosition(e.clientX, e.clientY);
@@ -327,6 +339,15 @@ document.addEventListener('pointerup', () => {
 window.addEventListener('resize', () => {
     resizeCanvas();
     initializeGame();
+});
+
+musicButton.addEventListener('click', toggleMusic);
+soundButton.addEventListener('click', toggleSounds);
+
+// Инициализация кнопок при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    musicButton.classList.toggle('active', musicOn);
+    soundButton.classList.toggle('active', soundsOn);
 });
 
 initializeGame();
