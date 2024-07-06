@@ -39,7 +39,10 @@ let moveSoundIndex = 0;
 let isDragging = false;
 let centerX, centerY;
 
-function initializeGame() {
+async function initializeGame() {
+    document.getElementById('loading').style.display = 'block';
+    await loadAllAudio();
+    document.getElementById('loading').style.display = 'none';
     resizeCanvas();
     updateBackgroundSize();
     snake = [{ x: 9, y: 10 }];
@@ -48,7 +51,7 @@ function initializeGame() {
     tree = null;
     d = null;
     score = 0;
-    speed = 200;
+    speed = 300;
     scoreDisplay.innerText = "Score: " + score;
     hideGameOver();
     clearInterval(gameInterval);
@@ -60,10 +63,23 @@ function initializeGame() {
             placeTree();
         }, 10000);
     }, 10000);
+    /*if (musicOn) {
+        backgroundMusic.play();
+    }*/
+}
+
+async function startGame() {
+    document.getElementById('loading').style.display = 'block';
+    await loadAllAudio();
+    document.getElementById('loading').style.display = 'none';
+    initializeGame();
+
     if (musicOn) {
         backgroundMusic.play();
     }
 }
+
+
 
 function updateBackgroundSize() {
     const boxSizePx = box + 'px';
@@ -75,7 +91,7 @@ function resizeCanvas() {
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
     
-    const canvasSize = Math.min(containerWidth * 0.9, containerHeight * 0.6);
+    const canvasSize = Math.min(containerWidth * 0.85, containerHeight * 0.55);
     
     canvas.width = canvasSize;
     canvas.height = canvasSize;
@@ -258,7 +274,7 @@ function triggerExplosion(snake) {
 
     animateExplosion();
 }
-
+/*
 function toggleMusic() {
     if (musicOn) {
         backgroundMusic.pause();
@@ -268,7 +284,7 @@ function toggleMusic() {
         document.getElementById('toggle-music').innerText = "Music: ON";
     }
     musicOn = !musicOn;
-}
+}*/
 
 function toggleMusic() {
     musicOn = !musicOn;
@@ -315,10 +331,24 @@ function updateSnakeDirection(x, y) {
     }
 }
 
-function restartGame() {
+async function restartGame() {
+    document.getElementById('loading').style.display = 'block';
+    
+    document.getElementById('loading').style.display = 'none';
     restartSound.play();
     initializeGame();
 }
+
+
+
+function preloadAudio(audioElement) {
+    return new Promise((resolve, reject) => {
+        audioElement.addEventListener('canplaythrough', resolve, { once: true });
+        audioElement.addEventListener('error', reject);
+        audioElement.load();
+    });
+}
+
 
 joystickArea.addEventListener('pointerdown', (e) => {
     isDragging = true;
@@ -338,7 +368,7 @@ document.addEventListener('pointerup', () => {
 
 window.addEventListener('resize', () => {
     resizeCanvas();
-    initializeGame();
+    //initializeGame();
 });
 
 musicButton.addEventListener('click', toggleMusic);
@@ -348,6 +378,33 @@ soundButton.addEventListener('click', toggleSounds);
 document.addEventListener('DOMContentLoaded', () => {
     musicButton.classList.toggle('active', musicOn);
     soundButton.classList.toggle('active', soundsOn);
+    document.getElementById('start-button').addEventListener('click', () => {
+        document.getElementById('start-game-container').style.display = 'none';
+        startGame();
+    });
 });
 
-initializeGame();
+async function loadAllAudio() {
+    const audioElements = [
+        backgroundMusic,
+        ...moveSounds,
+        fruitSound,
+        collisionSound,
+        treeCollisionSound,
+        restartSound,
+        explosionSound
+    ];
+
+    try {
+        await Promise.all(audioElements.map(preloadAudio));
+        console.log('All audio files loaded successfully');
+        /*backgroundMusic.play();*/
+        if (musicOn) {
+            backgroundMusic.play();
+        }
+    } catch (error) {
+        console.error('Error loading audio files:', error);
+    }
+}
+/*initializeGame();*/
+resizeCanvas();

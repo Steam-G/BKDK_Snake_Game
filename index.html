@@ -7,29 +7,48 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    
+    <div id="loading">Loading...</div>
+    <div id="start-game-container">
+        <div class="banner">
+            <div class="line">
+              <span>BKDK SnakeGame</span>
+            </div>
+          </div>
+          
+          <div class="box" id="start-button" onclick="restartGame()">
+              <div class="content">
+          <img src="images/b2.jpg" width="350" height="350" alt="Italy / Urban / Street / City">
+                  <div class="text1">START</div>
+                  <div class="text2">GAME</div>
+              </div>
+          </div>
+    </div>
+    <div id="game-over-container">
+        <div id="game-over">Game Over</div>
+        <button id="restart-button" onclick="restartGame()">RESTART</button>
+    </div>
     <div id="game-container">
+        <div id="top-border">
+            <div id="score">Score: 0</div>
 
-        <div class="sound-controls">
-            <button id="toggle-music" aria-label="Toggle music">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                </svg>
-            </button>
-            <button id="toggle-sounds" aria-label="Toggle sound effects">
-                <svg viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                </svg>
-            </button>
+            <div class="sound-controls">
+                <button id="toggle-music" aria-label="Toggle music">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                </button>
+                <button id="toggle-sounds" aria-label="Toggle sound effects">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <div id="score">Score: 0</div>
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
         
-        <div id="game-over-container">
-            <div id="game-over">Игра окончена!</div>
-            <button id="restart-button" onclick="restartGame()">Рестарт</button>
+        <div id="field-container">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
         </div>
-
-        
 
         <div id="joystick-container">
             <div id="joystick-area">
@@ -41,13 +60,14 @@
         
     </div>
 
+
     <audio id="background-music" loop>
-        <source src="sounds/background-music.mp3" type="audio/mpeg">
+        <source src="sounds/BakuDeku_3.mp3" type="audio/mpeg">
     </audio>
     <audio class="move-sound"><source src="sounds/move.mp3" type="audio/mpeg"></audio>
     <audio class="move-sound"><source src="sounds/move.mp3" type="audio/mpeg"></audio>
     <audio class="move-sound"><source src="sounds/move.mp3" type="audio/mpeg"></audio>
-    <audio id="fruit-sound"><source src="sounds/fruit.mp3" type="audio/mpeg"></audio>
+    <audio id="fruit-sound"><source src="sounds/Deku_Kacchan.mp3" type="audio/mpeg"></audio>
     <audio id="collision-sound"><source src="sounds/collision.wav" type="audio/mpeg"></audio>
     <audio id="tree-collision-sound"><source src="sounds/tree-collision.mp3" type="audio/mpeg"></audio>
     <audio id="restart-sound"><source src="sounds/restart.mp3" type="audio/mpeg"></audio>
