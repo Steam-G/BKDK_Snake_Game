@@ -28,6 +28,7 @@ const moveSounds = Array.from(document.getElementsByClassName('move-sound'));
 moveSounds.forEach(sound => sound.volume = 0.1);
 //const fruitSound = document.getElementById('fruit-sound');
 const fruitSounds = Array.from(document.getElementsByClassName('fruit-sound'));
+fruitSounds[6].volume= 0.2;
 const collisionSound = document.getElementById('collision-sound');
 collisionSound.volume = 0.2;
 const treeCollisionSound = document.getElementById('tree-collision-sound');
