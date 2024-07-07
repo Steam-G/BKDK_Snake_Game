@@ -26,7 +26,8 @@ const backgroundMusic = document.getElementById('background-music');
 backgroundMusic.volume = 0.1;
 const moveSounds = Array.from(document.getElementsByClassName('move-sound'));
 moveSounds.forEach(sound => sound.volume = 0.1);
-const fruitSound = document.getElementById('fruit-sound');
+//const fruitSound = document.getElementById('fruit-sound');
+const fruitSounds = Array.from(document.getElementsByClassName('fruit-sound'));
 const collisionSound = document.getElementById('collision-sound');
 const treeCollisionSound = document.getElementById('tree-collision-sound');
 const restartSound = document.getElementById('restart-sound');
@@ -78,8 +79,6 @@ async function startGame() {
         backgroundMusic.play();
     }
 }
-
-
 
 function updateBackgroundSize() {
     const boxSizePx = box + 'px';
@@ -203,7 +202,7 @@ function draw() {
     if (snakeX == fruit.x && snakeY == fruit.y) {
         score++;
         scoreDisplay.innerText = "Score: " + score;
-        fruitSound.play();
+        playRandomfruitSounds();
         placeFruit();
         clearInterval(gameInterval);
         speed -= 3;
@@ -300,10 +299,19 @@ function toggleSounds() {
     soundsOn = !soundsOn;
     soundButton.classList.toggle('active', soundsOn);
     moveSounds.forEach(sound => sound.muted = !soundsOn);
-    fruitSound.muted = !soundsOn;
+    fruitSounds.forEach(sound => sound.muted = !soundsOn);
     collisionSound.muted = !soundsOn;
     treeCollisionSound.muted = !soundsOn;
     restartSound.muted = !soundsOn;
+}
+
+function playRandomfruitSounds() {
+    // Выберите случайный индекс из массива fruitSounds
+    const randomIndex = Math.floor(Math.random() * fruitSounds.length);
+    const randomSound = fruitSounds[randomIndex];
+
+    // Воспроизведите выбранный звук
+    randomSound.play();
 }
 
 function updateStickPosition(clientX, clientY) {
@@ -388,7 +396,7 @@ async function loadAllAudio() {
     const audioElements = [
         backgroundMusic,
         ...moveSounds,
-        fruitSound,
+        ...fruitSounds,
         collisionSound,
         treeCollisionSound,
         restartSound,
