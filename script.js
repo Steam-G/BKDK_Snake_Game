@@ -78,6 +78,9 @@ async function startGame() {
     if (musicOn) {
         backgroundMusic.play();
     }
+    if (soundsOn) {
+        restartSound.play();
+    }
 }
 
 function updateBackgroundSize() {
@@ -343,8 +346,8 @@ async function restartGame() {
     document.getElementById('loading').style.display = 'block';
     
     document.getElementById('loading').style.display = 'none';
-    restartSound.play();
     initializeGame();
+    restartSound.play();
 }
 
 
