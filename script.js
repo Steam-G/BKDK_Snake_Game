@@ -29,8 +29,10 @@ moveSounds.forEach(sound => sound.volume = 0.1);
 //const fruitSound = document.getElementById('fruit-sound');
 const fruitSounds = Array.from(document.getElementsByClassName('fruit-sound'));
 const collisionSound = document.getElementById('collision-sound');
+collisionSound.volume = 0.2;
 const treeCollisionSound = document.getElementById('tree-collision-sound');
 const restartSound = document.getElementById('restart-sound');
+restartSound.volume = 0.2;
 const explosionSound = document.getElementById('explosion-sound');
 
 let box, snake, oldSnake, fruit, tree, d, score, speed, gameInterval, treeTimer;
